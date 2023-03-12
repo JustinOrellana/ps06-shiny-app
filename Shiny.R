@@ -2,64 +2,69 @@ library(rsconnect)
 library(shiny)
 library(tidyverse)
 
+Uah <- read.csv("UAH-lower-troposphere-long.csv", header = TRUE, sep = "\t")
+  
+ui <- fluidPage(
+  
+  navbarPage(title = em("Different pages"),
+    tabPanel(strong("Intro"),
 
-server.R <- function(input, output) {
-  
-  dataset <- reactive({
-    diamonds[sample(nrow(diamonds), input$sampleSize),]
-  })
-  
-  output$plot <- renderPlot({
-    
-    p <- ggplot(dataset(), aes_string(x=input$x, y=input$y)) + geom_point()
-    
-    if (input$color != 'None')
-      p <- p + aes_string(color=input$color)
-    
-    facets <- paste(input$facet_row, '~', input$facet_col)
-    if (facets != '. ~ .')
-      p <- p + facet_grid(facets)
-    
-    if (input$jitter)
-      p <- p + geom_jitter()
-    if (input$smooth)
-      p <- p + geom_smooth()
-    
-    print(p)
-    
-  }, height=700)
-  
+    h3("Weather Change"),
+    p("The value of this site is to show the trends that we see in the data."),
+    ),
+  tabPanel(strong("Year"),
+  sidebarLayout(
+    sidebarPanel(
+      fluidRow(
+        column(12,
+        h3("Over the Years"),
+        p("In this graph you can see the differences over the years"),
+        ),
+        column(5,
+               dateRangeInput("daterange", label = h5("Select Date Range"),
+                              start = "1978-01-01",
+                              end = "2023-01-01",
+                              min = "1978-01-01",
+                              max = "2023-01-01",
+                              startview = "decade"),
+
+               p("Choose a date"),
+               p(em("yy-mm-dd"))
+        ),
+        column(5,
+          uiOutput("difftemp"),
+          p("Choose a color")
+          )     
+        )
+      ),
+      mainPanel(plotOutput("Scatterplot")
+      )
+    )
+  ),
+ tabPanel(strong("Region"),
+          sidebarLayout(
+            sidebarPanel(
+              fluidRow(
+                column(12,
+                       h3("Which region?"),
+                       p("With this we can see which region is higher and lower in temperature"),
+                       ), 
+                column(5,
+                       uiOutput("region")
+                       ),
+                column(5,
+                       p("Pick a region")
+                       ),
+              )
+            ),
+          mainPanel(plotOutput("Region")
+          )
+          )
+ ),
+)
+)
+server <- function(input, output) {
+  head(Uah, 10)
 }
 
-UI.R <- dataset <- diamonds
-
-fluidPage(
-  
-  titlePanel("Diamonds Explorer"),
-  
-  sidebarPanel(
-    
-    sliderInput('sampleSize', 'Sample Size', min=1, max=nrow(dataset),
-                value=min(1000, nrow(dataset)), step=500, round=0),
-    
-    selectInput('x', 'X', names(dataset)),
-    selectInput('y', 'Y', names(dataset), names(dataset)[[2]]),
-    selectInput('color', 'Color', c('None', names(dataset))),
-    
-    checkboxInput('jitter', 'Jitter'),
-    checkboxInput('smooth', 'Smooth'),
-    
-    selectInput('facet_row', 'Facet Row', c(None='.', names(dataset))),
-    selectInput('facet_col', 'Facet Column', c(None='.', names(dataset)))
-  ),
-  
-  mainPanel(
-    plotOutput('plot')
-  )
-)
-
-
-
-
-
-
+shinyApp(ui = ui, server = server)
