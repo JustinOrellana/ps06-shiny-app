@@ -1,0 +1,13 @@
+name: ps06-shiny-app
+title: ps06-shiny-app
+username:
+account: justinorellana
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8544083
+bundleId: 6948342
+url: https://justinorellana.shinyapps.io/ps06-shiny-app/
+when: 1678628705.6591
+lastSyncTime: 1678628705.65911
+asMultiple: FALSE
+asStatic: FALSE
